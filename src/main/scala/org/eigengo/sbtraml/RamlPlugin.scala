@@ -6,21 +6,24 @@ import sbt._
 trait RamlSettings {
   import autoImport._
 
-  lazy val settings = (compile in Compile) <<= (compile in Compile).dependsOn(ramlCompile in Compile)
+  private lazy val compileSettings = (compile in Compile) <<= (compile in Compile).dependsOn(compile in Raml)
+  private lazy val docSettings = publishLocal <<= publishLocal dependsOn (doc in Raml) // <<= (ramlDoc in Raml) dependsOn publishLocal
+
+  lazy val settings = docSettings ++ compileSettings
 
   object autoImport {
 
-    val ramlCompile = taskKey[Unit]("Process RAML files")
-    val ramlDoc     = taskKey[Unit]("Process RAML files")
-    val ramlSource  = settingKey[File]("RAML source directories")
+    val Raml    = config("raml")
+    val compile = taskKey[Unit]("Compile RAML sources")
+    val doc     = taskKey[Unit]("Generate human-friendly documentation from the RAML sources")
+    val source  = settingKey[File]("RAML source directory")
 
     lazy val baseRamlSettings: Seq[Setting[_]] = Seq(
-      ramlCompile := { RamlCompile((ramlSource in Compile).value) },
-      ramlDoc := { RamlDoc((ramlSource in Compile).value) },
-      ramlSource in Compile := file("src/raml")
+      compile := { new RamlCompile((source in Raml).value, streams.value).run() },
+      doc := { new RamlDoc((source in Raml).value, streams.value).run() },
+      source in Raml := baseDirectory.value / "src/raml"
     )
   }
-
 
 }
 
@@ -31,5 +34,5 @@ object RamlPlugin extends AutoPlugin with RamlSettings {
   override def trigger: PluginTrigger = allRequirements
 
   override def projectSettings: Seq[Def.Setting[_]] =
-    inConfig(Compile)(baseRamlSettings)
+    inConfig(Raml)(baseRamlSettings)
 }

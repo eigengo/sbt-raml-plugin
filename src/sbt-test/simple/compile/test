@@ -1,2 +1,2 @@
 # check if RAML sources are found & "compiled"
-> compile
+> publishLocal

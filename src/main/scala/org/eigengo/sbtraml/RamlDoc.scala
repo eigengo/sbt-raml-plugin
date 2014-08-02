@@ -1,11 +1,12 @@
 package org.eigengo.sbtraml
 
+import sbt.Keys._
 import sbt._
 
-object RamlDoc {
+class RamlDoc(resourceLocation: File, s: TaskStreams) extends RamlSources {
 
-  def apply(source: File): Unit = {
-    println("*************** " + source)
+  def run(): Unit = {
+    println("*************** " + resourceLocation)
   }
 
 }
