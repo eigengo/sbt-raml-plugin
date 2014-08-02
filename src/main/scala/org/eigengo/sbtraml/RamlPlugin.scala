@@ -2,7 +2,6 @@ package org.eigengo.sbtraml
 
 import sbt.Keys._
 import sbt._
-import sbt.inc.Analysis
 
 trait RamlSettings {
 

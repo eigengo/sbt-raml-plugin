@@ -3,11 +3,25 @@ SBT RAML Plugin
 
 The purpose of this plugin is to provide syntax checking and documentation generator for your RAML API definitions.
 
-It exposes two tasks: ``raml:compile`` and ``raml:doc-html``. The ``compile`` task performs syntax and include resolution checks, if it succeeds, then your RAML definitions are valid, and can be used in some testing tool. The ``doc-html`` task takes the RAML definitions and generates HTML documentations. 
+It exposes two tasks: ``raml:verify`` and ``raml:doc``. The ``verify`` task performs syntax and include resolution checks,
+if it succeeds, then your RAML definitions are valid, and can be used in some testing tool. The ``doc`` task takes the
+RAML definitions and generates HTML documentations.
+
+Usage
+=====
+
+Add the plugin to your ``project/plugins.sbt`` and then add
+
+```scala
+org.eigengo.sbtraml.RamlPlugin.settings
+```
+
+to your ``build.sbt``. This will add the RAML verify check to the ``compile`` task and documentation task to the
+``publishLocal`` task.
 
 ---
 
 Notes:
-The ``doc-html`` task uses the ``stylesheet in Raml`` to specify a sequence of CSS files that will be used.
-
-The ``compile`` task looks for ``*.raml`` in ``ramlSource in Raml``, by default ``src/test/resources`` directory. 
+Both tasks use the ``source in Raml`` setting to point to a directory where the RAML files live. Future versions will
+probably need ``stylesheet in Raml`` to indicate the location of a CSS file for the documentation, and ``target in Raml``
+to specify the output directory for the HTML documentation.
