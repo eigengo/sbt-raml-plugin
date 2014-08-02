@@ -5,8 +5,10 @@ import sbt._
 
 class RamlDoc(resourceLocation: File, s: TaskStreams) extends RamlSources {
 
-  def run(): Unit = {
+  def run(): File = {
     println("*************** " + resourceLocation)
+
+    resourceLocation
   }
 
 }
