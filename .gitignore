@@ -2,6 +2,7 @@
 *.log
 .DS_Store
 *.pyc
+out
 
 # sbt specific
 dist/*

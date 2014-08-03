@@ -1,0 +1,281 @@
+<div class="panel panel-white">
+<div class="panel-heading">
+    <h4 class="panel-title">
+        <a class="collapsed" data-toggle="collapse" href="#panel_{{uniqueId}}">
+            <span class="parent">{{parentUrl}}</span>{{relativeUri}}
+        </a>
+
+            <span class="methods">
+                {{#eachValue methods}}
+                    <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{method}}">
+                        <span class="badge badge_{{method}}">{{method}}{{lock securedBy}}</span>
+                    </a>
+                {{/eachValue}}
+            </span>
+    </h4>
+</div>
+<div id="panel_{{uniqueId}}" class="panel-collapse collapse">
+    <div class="panel-body">
+        {{#if description}}
+            <div class="resource-description">{{md description}}</div>
+        {{/if}}
+
+        <div class="list-group">
+            {{#eachValue methods}}
+                <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{method}}" class="list-group-item">
+                    <span class="badge badge_{{method}}">{{method}}{{lock securedBy}}</span>
+                    <div class="method_description">{{md description}}</div>
+                    <div class="clearfix"></div>
+                </a>
+            {{/eachValue}}
+        </div>
+    </div>
+</div>
+
+{{#eachValue methods}}
+    <div class="modal fade" tabindex="0" id="{{../uniqueId}}_{{method}}">
+    <div class="modal-dialog">
+    <div class="modal-content">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h4 class="modal-title" id="myModalLabel">
+            <span class="badge badge_{{method}}">{{method}}{{lock securedBy}}</span>
+            <span class="parent">{{../parentUrl}}</span>{{../relativeUri}}
+        </h4>
+    </div>
+    <div class="modal-body">
+    <div class="alert alert-info">{{md description}}</div>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs">
+        <li class="active">
+            <a href="#{{../uniqueId}}_{{method}}_request" data-toggle="tab">Request</a>
+        </li>
+        {{#if responses}}
+            <li>
+                <a href="#{{../../uniqueId}}_{{method}}_response" data-toggle="tab">Response</a>
+            </li>
+        {{/if}}
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+    <div class="tab-pane active" id="{{../uniqueId}}_{{method}}_request">
+        {{#if ../allUriParameters}}
+            <h3>URI Parameters</h3>
+            <ul>
+                {{#eachValue ../../allUriParameters}}
+                    <li>
+                        <strong>{{this.displayName}}</strong>:
+                        <em>
+                            {{#if this.required}}
+                                required
+                            {{/if}}
+                            ({{this.type}})
+                        </em>
+
+                        {{md description}}
+                    </li>
+                {{/eachValue}}
+            </ul>
+        {{/if}}
+
+        {{#if headers}}
+            <h3>Headers</h3>
+            <ul>
+                {{#eachValue headers}}
+                    <li>
+                        <strong>{{@key}}</strong>:
+                        <em>
+                            {{#if this.required}}required{{/if}}
+                            ({{this.type}})
+                        </em>
+
+                        {{md this.description}}
+
+                        {{#if this.example}}
+                            <p>
+                                <small>
+                                    <strong>Example</strong>:
+                                    <pre><code>{{this.example}}</code></pre>
+                                </small>
+                            </p>
+                        {{/if}}
+                    </li>
+                {{/eachValue}}
+            </ul>
+        {{/if}}
+
+        {{#if queryParameters}}
+            <h3>Query Parameters</h3>
+            <ul>
+                {{#eachValue queryParameters}}
+                    <li>
+                        <strong>{{@key}}</strong>
+                        <em>
+                            {{#if this.required}}required{{/if}}
+                            {{#if this.enum}}
+                                one of ({{this.enum}})
+                            {{else}}
+                                ({{this.type}})
+                            {{/if}}
+                        </em>
+
+                        {{md description}}
+
+                        {{#if this.schema}}
+                            <p>
+                                <small>
+                                    <strong>Schema</strong>:
+                                    <pre><code>{{this.schema}}</code></pre>
+                                </small>
+                            </p>
+                        {{/if}}
+
+                        {{#if this.example}}
+                            <p>
+                                <small>
+                                    <strong>Example</strong>:
+                                    <pre><code>{{this.example}}</code></pre>
+                                </small>
+                            </p>
+                        {{/if}}
+                    </li>
+                {{/eachValue}}
+            </ul>
+        {{/if}}
+
+        {{#if body}}
+            <h3>Body</h3>
+            {{#eachValue body}}
+                <p><strong>Type: {{@key}}</strong></p>
+                {{#if formParameters}}
+                    <strong>Form Parameters</strong>
+                    <ul>
+                        {{#eachValue formParameters}}
+                            <li>
+                                <strong>{{@key}}</strong>:
+                                <em>
+                                    {{#if this.required}}required{{/if}}
+                                    {{#if this.enum}}
+                                        one of ({{this.enum}})
+                                    {{else}}
+                                        ({{this.type}})
+                                    {{/if}}
+                                </em>
+
+                                {{md description}}
+
+                                {{#if this.schema}}
+                                    <p>
+                                        <small>
+                                            <strong>Schema</strong>:
+                                            <pre><code>{{this.schema}}</code></pre>
+                                        </small>
+                                    </p>
+                                {{/if}}
+
+                                {{#if this.example}}
+                                    <p>
+                                        <small>
+                                            <strong>Example</strong>:
+                                            <pre><code>{{this.example}}</code></pre>
+                                        </small>
+                                    </p>
+                                {{/if}}
+                            </li>
+                        {{/eachValue}}
+                    </ul>
+                {{/if}}
+
+                {{#if this.schema}}
+                    <p>
+                        <small>
+                            <strong>Schema</strong>:
+                            <pre><code>{{this.schema}}</code></pre>
+                        </small>
+                    </p>
+                {{/if}}
+
+                {{#if this.example}}
+                    <p>
+                        <small>
+                            <strong>Example</strong>:
+                            <pre><code>{{this.example}}</code></pre>
+                        </small>
+                    </p>
+                {{/if}}
+            {{/eachValue}}
+        {{/if}}
+    </div>
+
+    {{#if responses}}
+        <div class="tab-pane" id="{{../../uniqueId}}_{{method}}_response">
+            {{#eachValue responses}}
+                <h2>HTTP status code <a href="http://httpstatus.es/{{@key}}" target="_blank">{{@key}}</a></h2>
+                {{md this.description}}
+
+                {{#if this.headers}}
+                    <h3>Headers</h3>
+                    <ul>
+                        {{#eachValue this.headers}}
+                            <li>
+                                <strong>{{@key}}</strong>:
+                                <em>
+                                    {{#if this.required}}required{{/if}}
+                                    ({{this.type}})
+                                </em>
+
+                                {{md this.description}}
+
+                                {{#if this.example}}
+                                    <p>
+                                        <small>
+                                            <strong>Example</strong>:
+                                            <pre><code>{{this.example}}</code></pre>
+                                        </small>
+                                    </p>
+                                {{/if}}
+                            </li>
+                        {{/eachValue}}
+                    </ul>
+                {{/if}}
+
+                {{#if this.body}}
+                    <h3>Body</h3>
+                    {{#eachValue this.body}}
+                        <p><strong>Type: {{@key}}</strong></p>
+
+                        {{#if this.schema}}
+                            <p>
+                                <small>
+                                    <strong>Schema</strong>:
+                                    <pre><code>{{this.schema}}</code></pre>
+                                </small>
+                            </p>
+                        {{/if}}
+
+                        {{#if this.example}}
+                            <p>
+                                <small>
+                                    <strong>Example</strong>:
+                                    <pre><code>{{this.example}}</code></pre>
+                                </small>
+                            </p>
+                        {{/if}}
+                    {{/eachValue}}
+                {{/if}}
+            {{/eachValue}}
+        </div>
+    {{/if}}
+    </div>
+    </div>
+    </div>
+    </div>
+    </div>
+{{/eachValue}}
+</div>
+
+{{#eachValue resources}}
+    {{> resource}}
+{{/eachValue}}
