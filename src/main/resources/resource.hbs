@@ -6,9 +6,9 @@
         </a>
 
             <span class="methods">
-                {{#eachValue methods}}
-                    <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{method}}">
-                        <span class="badge badge_{{method}}">{{method}}{{lock securedBy}}</span>
+                {{#eachValue actions}}
+                    <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{this}}">
+                        <span class="badge badge_{{type}}">{{type}}{{lock securedBy}}</span>
                     </a>
                 {{/eachValue}}
             </span>
@@ -21,9 +21,9 @@
         {{/if}}
 
         <div class="list-group">
-            {{#eachValue methods}}
-                <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{method}}" class="list-group-item">
-                    <span class="badge badge_{{method}}">{{method}}{{lock securedBy}}</span>
+            {{#eachValue actions}}
+                <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{this}}" class="list-group-item">
+                    <span class="badge badge_{{type}}">{{type}}{{lock securedBy}}</span>
                     <div class="method_description">{{md description}}</div>
                     <div class="clearfix"></div>
                 </a>
@@ -32,14 +32,14 @@
     </div>
 </div>
 
-{{#eachValue methods}}
-    <div class="modal fade" tabindex="0" id="{{../uniqueId}}_{{method}}">
+{{#eachValue action}}
+    <div class="modal fade" tabindex="0" id="{{../uniqueId}}_{{this}}">
     <div class="modal-dialog">
     <div class="modal-content">
     <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h4 class="modal-title" id="myModalLabel">
-            <span class="badge badge_{{method}}">{{method}}{{lock securedBy}}</span>
+            <span class="badge badge_{{type}}">{{type}}{{lock securedBy}}</span>
             <span class="parent">{{../parentUrl}}</span>{{../relativeUri}}
         </h4>
     </div>
@@ -49,18 +49,18 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs">
         <li class="active">
-            <a href="#{{../uniqueId}}_{{method}}_request" data-toggle="tab">Request</a>
+            <a href="#{{../uniqueId}}_{{this}}_request" data-toggle="tab">Request</a>
         </li>
         {{#if responses}}
             <li>
-                <a href="#{{../../uniqueId}}_{{method}}_response" data-toggle="tab">Response</a>
+                <a href="#{{../../uniqueId}}_{{type}}_response" data-toggle="tab">Response</a>
             </li>
         {{/if}}
     </ul>
 
     <!-- Tab panes -->
     <div class="tab-content">
-    <div class="tab-pane active" id="{{../uniqueId}}_{{method}}_request">
+    <div class="tab-pane active" id="{{../uniqueId}}_{{this}}_request">
         {{#if ../allUriParameters}}
             <h3>URI Parameters</h3>
             <ul>
@@ -210,7 +210,7 @@
     </div>
 
     {{#if responses}}
-        <div class="tab-pane" id="{{../../uniqueId}}_{{method}}_response">
+        <div class="tab-pane" id="{{../../uniqueId}}_{{this}}_response">
             {{#eachValue responses}}
                 <h2>HTTP status code <a href="http://httpstatus.es/{{@key}}" target="_blank">{{@key}}</a></h2>
                 {{md this.description}}
