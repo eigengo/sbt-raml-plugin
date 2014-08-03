@@ -1,7 +1,5 @@
 package org.eigengo.sbtraml
 
-import java.io.FileOutputStream
-
 import com.github.jknack.handlebars.Handlebars
 import com.github.jknack.handlebars.helper.StringHelpers
 import com.github.jknack.handlebars.io.{StringTemplateSource, TemplateSource}
@@ -11,7 +9,7 @@ import sbt._
 
 import scala.io.Source
 
-class RamlDoc(resourceLocation: File, template: String, s: TaskStreams) extends RamlSources {
+class RamlDoc(resourceLocation: File, template: String, write: String => Unit, s: TaskStreams) extends RamlSources {
   private val handlebars = new Handlebars()
   handlebars.setInfiniteLoops(true)
   handlebars.setDeletePartialAfterMerge(true)
@@ -35,9 +33,7 @@ class RamlDoc(resourceLocation: File, template: String, s: TaskStreams) extends 
 
     val ct = handlebars.compile(findTemplateSource(template))
     val x = ct.apply(builder)
-    val fos = new FileOutputStream("/Users/janmachacek/Desktop/x.html")
-    fos.write(x.getBytes)
-    fos.close
+    write(x)
   }
 
   def run(): Unit = {

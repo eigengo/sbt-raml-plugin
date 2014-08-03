@@ -1,12 +1,14 @@
 package org.eigengo.sbtraml
 
+import java.io.FileOutputStream
+
 import sbt.Keys._
 import sbt._
 
 trait RamlSettings {
 
   private lazy val compileSettings = (compile in Compile) <<= (compile in Compile).dependsOn(Keys.verify in Keys.Raml)
-  private lazy val docSettings = publishLocal <<= publishLocal dependsOn (Keys.doc in Keys.Raml) // <<= (ramlDoc in Raml) dependsOn publishLocal
+  private lazy val docSettings = publishLocal <<= publishLocal dependsOn (Keys.html in Keys.Raml) // <<= (ramlDoc in Raml) dependsOn publishLocal
 
   lazy val settings = docSettings ++ compileSettings
 
@@ -14,13 +16,21 @@ trait RamlSettings {
 
     val Raml    = config("raml")
     val verify  = taskKey[Unit]("Verify RAML sources")
-    val doc     = taskKey[Unit]("Generate human-friendly documentation from the RAML sources")
+    val html    = taskKey[Unit]("Generate human-friendly documentation from the RAML sources")
     val source  = settingKey[File]("RAML source directory")
     val template = settingKey[String]("Template source")
 
+    private def writeToFile(f: File, s: TaskStreams)(content: String): Unit = {
+      val fos = new FileOutputStream(f)
+      fos.write(content.getBytes)
+      fos.close()
+
+      s.log.info("Written RAML documentation to " + f)
+    }
+
     lazy val baseRamlSettings: Seq[Setting[_]] = Seq(
       verify := { new RamlVerify((source in Raml).value, streams.value).run() },
-      doc := { new RamlDoc((source in Raml).value, (template in Raml).value, streams.value).run() },
+      html := { new RamlDoc((source in Raml).value, (template in Raml).value, writeToFile(new File(target.value, "raml.html"), streams.value), streams.value).run() },
       source in Raml := baseDirectory.value / "src/raml",
       template in Raml := "classpath:///html.hbs"
     )
