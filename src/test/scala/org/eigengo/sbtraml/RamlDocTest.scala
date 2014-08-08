@@ -26,7 +26,7 @@ class RamlDocTest extends FlatSpec {
 
   "Simple RAML eyeball test" should "produce HTML documentation" in {
     val f = new File(getClass.getResource("/simple/").toURI)
-    new RamlDoc(f, "classpath:///html.hbs", writeToFile("/Users/janmachacek/Desktop/x.html"), s()).run()
+    new RamlDoc(f, "classpath:///html.hbs", writeToFile("x.html"), s()).run()
   }
 
 }
