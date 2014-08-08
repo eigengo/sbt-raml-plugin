@@ -4,7 +4,7 @@ language: scala
 scala:
   - 2.10.4
   
-script: sbt clean test sctipted
+script: sbt clean test scripted
 
 # Testing with OpenJDK7 as well just to be adventurous!
 jdk:
