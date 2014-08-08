@@ -12,7 +12,7 @@ RAML definitions and generates HTML documentations.
 Usage
 =====
 
-Add the plugin to your ``project/plugins.sbt`` and then add
+Write the RAML descriptors in ``src/raml``. Your RAML files can ``include`` other RAML files, the verifier and documentation generator follows the naming & directory structure. To include the verifier and documentation generator, add the plugin to your ``project/plugins.sbt`` and then add
 
 ```scala
 org.eigengo.sbtraml.RamlPlugin.settings
