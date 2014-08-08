@@ -1,6 +1,8 @@
 SBT RAML Plugin
 ===============
 
+[![Build Status](https://travis-ci.org/eigengo/sbt-raml-plugin.png?branch=master)](https://travis-ci.org/eigengo/sbt-raml-plugin)
+
 The purpose of this plugin is to provide syntax checking and documentation generator for your RAML API definitions.
 
 It exposes two tasks: ``raml:verify`` and ``raml:doc``. The ``verify`` task performs syntax and include resolution checks,
