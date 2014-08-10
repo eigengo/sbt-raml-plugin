@@ -22,3 +22,8 @@ project/plugins/project/
 
 # Pre-processed documentation file
 rst_preprocessed
+
+# Eclipse IDE project files
+.classpath
+.project
+.settings/
