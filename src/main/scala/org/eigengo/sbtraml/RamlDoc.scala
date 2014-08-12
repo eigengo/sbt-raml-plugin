@@ -9,7 +9,14 @@ import sbt._
 
 import scala.io.Source
 
-class RamlDoc(resourceLocation: File, template: String, write: String => Unit, s: TaskStreams) extends RamlSources {
+object RamlDoc {
+  case class RamlSource(source: File) {
+    def target(ext: String): File = source
+  }
+  type Content = String
+}
+
+class RamlDoc(resourceLocation: File, template: String, write: (RamlDoc.RamlSource, RamlDoc.Content) => Unit, s: TaskStreams) extends RamlSources {
   private val handlebars = new Handlebars()
   handlebars.setInfiniteLoops(true)
   handlebars.setDeletePartialAfterMerge(true)
@@ -29,11 +36,16 @@ class RamlDoc(resourceLocation: File, template: String, write: String => Unit, s
   }
 
   def process(ramlFile: File): Unit = {
-    val builder = new RamlDocumentBuilder().build(load(ramlFile), resourceLocationPath)
-
-    val ct = handlebars.compile(findTemplateSource(template))
-    val x = ct.apply(builder)
-    write(x)
+    try {
+      val builder = new RamlDocumentBuilder().build(load(ramlFile), resourceLocationPath)
+      val ct = handlebars.compile(findTemplateSource(template))
+      val x = ct.apply(builder)
+      write(RamlDoc.RamlSource(ramlFile), x)
+    } catch {
+      case x: Throwable =>
+        s.log.error(s"${ramlFile}: ${x.getMessage}")
+        throw x
+    }
   }
 
   def run(): Unit = {

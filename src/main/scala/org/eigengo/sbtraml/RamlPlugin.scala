@@ -20,8 +20,8 @@ trait RamlSettings {
     val source  = settingKey[File]("RAML source directory")
     val template = settingKey[String]("Template source")
 
-    private def writeToFile(f: File, s: TaskStreams)(content: String): Unit = {
-      val fos = new FileOutputStream(f)
+    private def writeToFile(s: TaskStreams)(f: RamlDoc.RamlSource, content: String): Unit = {
+      val fos = new FileOutputStream(f.target("html"))
       fos.write(content.getBytes)
       fos.close()
 
@@ -30,7 +30,7 @@ trait RamlSettings {
 
     lazy val baseRamlSettings: Seq[Setting[_]] = Seq(
       verify := { new RamlVerify((source in Raml).value, streams.value).run() },
-      html := { new RamlDoc((source in Raml).value, (template in Raml).value, writeToFile(new File(target.value, "raml.html"), streams.value), streams.value).run() },
+      html := { new RamlDoc((source in Raml).value, (template in Raml).value, writeToFile(streams.value), streams.value).run() },
       source in Raml := baseDirectory.value / "src/raml",
       template in Raml := "classpath:///html.hbs"
     )

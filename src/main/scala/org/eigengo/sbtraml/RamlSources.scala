@@ -8,10 +8,8 @@ trait RamlSources {
   import java.io.File
   
   def findFiles(f: File): Array[File] = {
-    val these = f.listFiles(new FilenameFilter {
-      override def accept(dir: File, name: String): Boolean = name.endsWith(".raml")
-    })
-    these ++ these.filter(_.isDirectory).flatMap(findFiles)
+    val these = f.listFiles()
+    these.filter(_.getName.endsWith(".raml")) ++ these.filter(_.isDirectory).flatMap(findFiles).filter(_.getName.endsWith(".raml"))
   }
 
   def load(f: File): String = Source.fromFile(f).mkString

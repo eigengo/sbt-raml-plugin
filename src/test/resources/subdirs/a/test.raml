@@ -1,0 +1,17 @@
+#%RAML 0.8
+# Basic starter raml with two resources and corresponding methods.
+
+title: Eventlog API
+version: 1.0
+baseUri: http://eventlog.example.org/{version}
+
+/streams/{streamName}:
+  displayName: A Named Stream
+  description: A stream is a collection of related events. A Named Stream has been defined by the user to contain a list of related events. Named Streams are created by POSTing an event to a Named Stream.
+  get:
+    description: Get a list of events in this stream.
+  post:
+    description: Create a new event in this stream.
+  /{eventId}:
+   get:
+     description: Get a particular event by its Id.
