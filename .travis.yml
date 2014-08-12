@@ -15,4 +15,4 @@ env:
   - secure: MwRqcAgpBGrmyRY64h2xQjtq3JTRWDz8Kqw/lB/sjDhMk67YCtZclE2SoXjqSfiZVEgd/We4kdU5L0rWEDnBxLfPltXJCep3i8BYLIYC6GqwroK+7dcKvppNDcyDqIxFW17MZ6mvIa0RA98NMNduNShLGM96gcwXvW7VlMHXjgk=
 
 after_success:
-  - "[[ $TRAVIS_BRANCH == \"master\" ]] && { sbt publish }
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && { sbt publish }"
