@@ -1,9 +1,6 @@
 package org.eigengo.sbtraml
 
-import java.io.FileOutputStream
-
-import org.scalatest.{FeatureSpec, FlatSpec}
-import sbt.Keys._
+import org.scalatest.FeatureSpec
 import sbt._
 import sbt.std.Streams
 
@@ -18,24 +15,35 @@ class RamlDocTest extends FeatureSpec {
     Streams[Def.ScopedKey[_]](_ => new File("."), _ => "", (_, _) => logger)(Def.ScopedKey[String](Scope.ThisScope, AttributeKey("x")))
   }
 
-  private def writeToFile(f: RamlDoc.RamlSource, content: String): Unit = {
-    val fos = new FileOutputStream(f.target("html"))
-    fos.write(content.getBytes)
-    fos.close()
+  feature("Manipulate file names") {
+    val sourceDir = new File(getClass.getResource("/").toURI)
+    val source    = new File(getClass.getResource("/subdirs/a/test.raml").toURI)
+
+    scenario("Return proper target") {
+      val target = new RamlDoc.RamlSource(source, sourceDir).target("html")
+
+      assert(target === new File("subdirs/a/test.html"))
+    }
+
+    scenario("Reject bad extensions") {
+      intercept[AssertionError] { new RamlDoc.RamlSource(source, sourceDir).target(".html") }
+      intercept[AssertionError] { new RamlDoc.RamlSource(source, sourceDir).target("") }
+    }
+
   }
 
   feature("Generate documentation from RAML files") {
 
     scenario("From single RAML file") {
       val f = new File(getClass.getResource("/simple/").toURI)
-      new RamlDoc(f, "classpath:///html.hbs", writeToFile, s()).run()
+      new RamlDoc(f, "classpath:///html.hbs", (_, x) => println(x), s()).run()
     }
 
     scenario("From multiple RAML files in sub-directories") {
       val f = new File(getClass.getResource("/subdirs/").toURI)
       var counter = 0
 
-      new RamlDoc(f, "classpath:///html.hbs", (_, _) => counter = counter + 1, s()).run()
+      new RamlDoc(f, "classpath:///html.hbs", { (src, _) => println(src.target("html")); counter = counter + 1 }, s()).run()
       assert(counter === 2)
     }
 

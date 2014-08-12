@@ -2,6 +2,7 @@ package org.eigengo.sbtraml
 
 import java.io.FileOutputStream
 
+import org.apache.commons.io.FilenameUtils
 import sbt.Keys._
 import sbt._
 
@@ -20,17 +21,24 @@ trait RamlSettings {
     val source  = settingKey[File]("RAML source directory")
     val template = settingKey[String]("Template source")
 
-    private def writeToFile(s: TaskStreams)(f: RamlDoc.RamlSource, content: String): Unit = {
-      val fos = new FileOutputStream(f.target("html"))
-      fos.write(content.getBytes)
-      fos.close()
+    private def writeToFile(s: TaskStreams, target: File)(f: RamlDoc.RamlSource, content: String): Unit = {
+      val targetFile = f.target("html")
+      val directoryAvailable = if (targetFile.getParent != null) new File(FilenameUtils.concat(target.getAbsolutePath, targetFile.getParent)).mkdirs() else true
+      if (directoryAvailable) {
+        val htmlFile = FilenameUtils.concat(target.getAbsolutePath, targetFile.getPath)
+        val fos = new FileOutputStream(htmlFile)
+        fos.write(content.getBytes)
+        fos.close()
 
-      s.log.info("Written RAML documentation to " + f)
+        s.log.info("Written RAML documentation to " + targetFile)
+      } else {
+        s.log.error("Could not create directory for " + targetFile)
+      }
     }
 
     lazy val baseRamlSettings: Seq[Setting[_]] = Seq(
       verify := { new RamlVerify((source in Raml).value, streams.value).run() },
-      html := { new RamlDoc((source in Raml).value, (template in Raml).value, writeToFile(streams.value), streams.value).run() },
+      html := { new RamlDoc((source in Raml).value, (template in Raml).value, writeToFile(streams.value, (target in Compile).value), streams.value).run() },
       source in Raml := baseDirectory.value / "src/raml",
       template in Raml := "classpath:///html.hbs"
     )
