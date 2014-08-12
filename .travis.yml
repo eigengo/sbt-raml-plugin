@@ -1,19 +1,18 @@
-# See http://about.travis-ci.org/docs/user/build-configuration/
 language: scala
-
 scala:
-  - 2.10.4
-  
+- 2.10.4
 script: sbt clean test scripted
-
-# Testing with OpenJDK7 as well just to be adventurous!
 jdk:
-  - oraclejdk7
-  - openjdk7
-
-# Custom notification settings
+- oraclejdk7
+- openjdk7
 notifications:
   email:
     recipients:
-      - jan@eigengo.com
+    - jan@eigengo.com
+env:
+  global:
+  - secure: STYk3FPnQwBHT25TKopqxDOno1nx5FmICz39AE6AN+uUw3GtbIyYfdblNGedkIpuVzSA8/O2SWbVYIL74KUm07dIfeUXCLlMQfCo+c1f6NcvsXJhnwE9qKoNVj+ETzq93kBM+1Qj51fLAHqR7ekqJdpp6EgP06D/6yrS4+xXQAw=
+  - secure: MwRqcAgpBGrmyRY64h2xQjtq3JTRWDz8Kqw/lB/sjDhMk67YCtZclE2SoXjqSfiZVEgd/We4kdU5L0rWEDnBxLfPltXJCep3i8BYLIYC6GqwroK+7dcKvppNDcyDqIxFW17MZ6mvIa0RA98NMNduNShLGM96gcwXvW7VlMHXjgk=
 
+after_success:
+  - "[[ $TRAVIS_BRANCH == \"master\" ]] && { sbt publish }
