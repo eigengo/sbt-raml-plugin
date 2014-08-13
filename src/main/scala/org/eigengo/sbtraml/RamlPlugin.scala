@@ -6,6 +6,9 @@ import org.apache.commons.io.FilenameUtils
 import sbt.Keys._
 import sbt._
 
+/**
+ * Defines settings for the RAML plugin.
+ */
 trait RamlSettings {
 
   private lazy val compileSettings = (compile in Compile) <<= (compile in Compile).dependsOn(Keys.verify in Keys.Raml)
@@ -15,11 +18,11 @@ trait RamlSettings {
 
   object Keys {
 
-    val Raml    = config("raml")
-    val verify  = taskKey[Unit]("Verify RAML sources")
-    val html    = taskKey[Unit]("Generate human-friendly documentation from the RAML sources")
-    val source  = settingKey[File]("RAML source directory")
-    val template = settingKey[String]("Template source")
+    val Raml     = config("raml")
+    val verify   = taskKey[Unit]("Verify RAML sources")
+    val html     = taskKey[Unit]("Generate human-friendly documentation from the RAML sources")
+    val source   = settingKey[File]("RAML source directory")
+    val template = settingKey[File]("Template source")
 
     private def writeToFile(s: TaskStreams, target: File)(f: RamlDoc.RamlSource, content: String): Unit = {
       val targetFile = f.target("html")
@@ -38,14 +41,16 @@ trait RamlSettings {
 
     lazy val baseRamlSettings: Seq[Setting[_]] = Seq(
       verify := { new RamlVerify((source in Raml).value, streams.value).run() },
-      html := { new RamlDoc((source in Raml).value, (template in Raml).value, writeToFile(streams.value, (target in Compile).value), streams.value).run() },
-      source in Raml := baseDirectory.value / "src/raml",
-      template in Raml := "classpath:///html.hbs"
+      html := { new RamlDoc((source in Raml).value, (template in Raml).?.value , writeToFile(streams.value, (target in Compile).value), streams.value).run() },
+      source in Raml := baseDirectory.value / "src/raml"
     )
   }
 
 }
 
+/**
+ * The entry-point for the RAML plugin
+ */
 object RamlPlugin extends AutoPlugin with RamlSettings {
 
   override def trigger: PluginTrigger = allRequirements

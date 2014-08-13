@@ -43,9 +43,26 @@ object RamlDoc {
    * The file content
    */
   type Content = String
+
+  /**
+   * Write function takes the some ``RamlSource`` and the ``Content``, performs some operation (typically I/O), and
+   * returns () on completion
+   */
+  type Write = (RamlSource, Content) => Unit
 }
 
-class RamlDoc(resourceLocation: File, template: String, write: (RamlDoc.RamlSource, RamlDoc.Content) => Unit, s: TaskStreams) extends RamlSources {
+/**
+ * Generates HTML documentation by finding the RAML files at the location given by ``resourceLocation``, using the
+ * Handlebars / Moustache ``template``, calling ``write`` when it has the HTML content. It also receives reference to
+ * ``TaskStreams`` so that it can interact with SBT's tasks.
+ *
+ * @param resourceLocation the directory that is expected to contain the ``*.raml`` files in any of its sub-directories
+ * @param template the template to be used
+ * @param write the write operation
+ * @param s the TaskStreams reference
+ */
+class RamlDoc(resourceLocation: File, template: Option[File], write: RamlDoc.Write, s: TaskStreams) extends RamlSources {
+
   private val handlebars = new Handlebars()
   handlebars.setInfiniteLoops(true)
   handlebars.setDeletePartialAfterMerge(true)
@@ -54,20 +71,14 @@ class RamlDoc(resourceLocation: File, template: String, write: (RamlDoc.RamlSour
   handlebars.registerHelper("eachValue", new EachValueHelper)
 
   private val resourceLocationPath: String = resourceLocation.getAbsolutePath
-
-  private def findTemplateSource(template: String): TemplateSource = {
-    if (template.startsWith("classpath://")) {
-      val resource = getClass.getResource(template.substring(12))
-      new StringTemplateSource(template, Source.fromURL(resource).mkString)
-    } else {
-      new StringTemplateSource(template, Source.fromFile(template).mkString)
-    }
-  }
+  private val templateSource: TemplateSource = template.map { f => new StringTemplateSource(f.getName, Source.fromFile(f).mkString) }
+                                                 .getOrElse { val resource = getClass.getResource("/html.hbs")
+                                                              new StringTemplateSource("html.hbs", Source.fromURL(resource).mkString) }
 
   private def process(ramlFile: File): Unit = {
     try {
       val builder = new RamlDocumentBuilder().build(load(ramlFile), resourceLocationPath)
-      val ct = handlebars.compile(findTemplateSource(template))
+      val ct = handlebars.compile(templateSource)
       val x = ct.apply(builder)
       write(new RamlDoc.RamlSource(ramlFile, resourceLocation), x)
     } catch {
