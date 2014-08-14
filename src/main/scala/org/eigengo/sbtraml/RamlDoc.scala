@@ -68,7 +68,9 @@ class RamlDoc(resourceLocation: File, template: Option[File], write: RamlDoc.Wri
   handlebars.setDeletePartialAfterMerge(true)
   handlebars.registerHelper("md", StringHelpers.lower)
   handlebars.registerHelper("lock", StringHelpers.lower)
-  handlebars.registerHelper("eachValue", new EachValueHelper)
+  handlebars.registerHelper(EachValueHelper.NAME, EachValueHelper.INSTANCE)
+  handlebars.registerHelper(UniqueIdHelper.NAME, UniqueIdHelper.INSTANCE)
+  handlebars.registerHelper(EachMapEntryHelper.NAME, EachMapEntryHelper.INSTANCE)
 
   private val resourceLocationPath: String = resourceLocation.getAbsolutePath
   private val templateSource: TemplateSource = template.map { f => new StringTemplateSource(f.getName, Source.fromFile(f).mkString) }

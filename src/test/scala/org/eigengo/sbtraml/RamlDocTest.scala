@@ -1,5 +1,7 @@
 package org.eigengo.sbtraml
 
+import java.io.FileOutputStream
+
 import org.scalatest.FeatureSpec
 import sbt._
 import sbt.std.Streams
@@ -33,10 +35,16 @@ class RamlDocTest extends FeatureSpec {
   }
 
   feature("Generate documentation from RAML files") {
+    def writeToFile(s: RamlDoc.RamlSource, content: RamlDoc.Content): Unit = {
+      val fos = new FileOutputStream("/Users/janmachacek/Desktop/x.html")
+      fos.write(content.getBytes)
+      fos.close
+    }
 
     scenario("From single RAML file") {
       val f = new File(getClass.getResource("/simple/").toURI)
-      new RamlDoc(f, None, (_, x) => println(x), s()).run()
+//      new RamlDoc(f, None, (_, x) => println(x), s()).run()
+      new RamlDoc(f, None, writeToFile, s()).run()
     }
 
     scenario("From multiple RAML files in sub-directories") {

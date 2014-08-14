@@ -18,17 +18,17 @@ import java.util.Set;
  * @author janm399
  * @since 0.3.0
  */
-public class EachValueHelper implements Helper<Object> {
+public class EachMapEntryHelper implements Helper<Object> {
 
     /**
      * A singleton instance of this helper.
      */
-    public static final Helper<Object> INSTANCE = new EachValueHelper();
+    public static final Helper<Object> INSTANCE = new EachMapEntryHelper();
 
     /**
      * The helper's name.
      */
-    public static final String NAME = "eachValue";
+    public static final String NAME = "eachMapEntry";
 
     @SuppressWarnings({"rawtypes", "unchecked" })
     @Override
@@ -49,7 +49,7 @@ public class EachValueHelper implements Helper<Object> {
      * @param context The context object.
      * @param options The helper options.
      * @return The string output.
-     * @throws IOException If something goes wrong.
+     * @throws java.io.IOException If something goes wrong.
      */
     private CharSequence hashContext(final Object context, final Options options)
             throws IOException {
@@ -70,7 +70,7 @@ public class EachValueHelper implements Helper<Object> {
      * @param context The context object.
      * @param options The helper options.
      * @return The string output.
-     * @throws IOException If something goes wrong.
+     * @throws java.io.IOException If something goes wrong.
      */
     private CharSequence mapContext(final Map<?, ?> context, final Options options)
             throws IOException {

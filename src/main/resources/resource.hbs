@@ -6,11 +6,11 @@
         </a>
 
             <span class="methods">
-                {{#eachValue actions}}
-                    <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{this}}">
+                {{#each actions}}
+                    <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{type}}">
                         <span class="badge badge_{{type}}">{{type}}{{lock securedBy}}</span>
                     </a>
-                {{/eachValue}}
+                {{/each}}
             </span>
     </h4>
 </div>
@@ -21,19 +21,19 @@
         {{/if}}
 
         <div class="list-group">
-            {{#eachValue actions}}
-                <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{this}}" class="list-group-item">
+            {{#each actions}}
+                <a href="#" data-toggle="modal" data-target="#{{../uniqueId}}_{{type}}" class="list-group-item">
                     <span class="badge badge_{{type}}">{{type}}{{lock securedBy}}</span>
                     <div class="method_description">{{md description}}</div>
                     <div class="clearfix"></div>
                 </a>
-            {{/eachValue}}
+            {{/each}}
         </div>
     </div>
 </div>
 
-{{#eachValue action}}
-    <div class="modal fade" tabindex="0" id="{{../uniqueId}}_{{this}}">
+{{#each actions}}
+    <div class="modal fade" tabindex="0" id="{{../uniqueId}}_{{type}}">
     <div class="modal-dialog">
     <div class="modal-content">
     <div class="modal-header">
@@ -49,7 +49,7 @@
     <!-- Nav tabs -->
     <ul class="nav nav-tabs">
         <li class="active">
-            <a href="#{{../uniqueId}}_{{this}}_request" data-toggle="tab">Request</a>
+            <a href="#{{../uniqueId}}_{{type}}_request" data-toggle="tab">Request</a>
         </li>
         {{#if responses}}
             <li>
@@ -60,11 +60,11 @@
 
     <!-- Tab panes -->
     <div class="tab-content">
-    <div class="tab-pane active" id="{{../uniqueId}}_{{this}}_request">
+    <div class="tab-pane active" id="{{../uniqueId}}_{{type}}_request">
         {{#if ../allUriParameters}}
             <h3>URI Parameters</h3>
             <ul>
-                {{#eachValue ../../allUriParameters}}
+                {{#each ../../allUriParameters}}
                     <li>
                         <strong>{{this.displayName}}</strong>:
                         <em>
@@ -76,16 +76,16 @@
 
                         {{md description}}
                     </li>
-                {{/eachValue}}
+                {{/each}}
             </ul>
         {{/if}}
 
         {{#if headers}}
             <h3>Headers</h3>
             <ul>
-                {{#eachValue headers}}
+                {{#each headers}}
                     <li>
-                        <strong>{{@key}}</strong>:
+                        <strong>{{key}}</strong>:
                         <em>
                             {{#if this.required}}required{{/if}}
                             ({{this.type}})
@@ -102,16 +102,16 @@
                             </p>
                         {{/if}}
                     </li>
-                {{/eachValue}}
+                {{/each}}
             </ul>
         {{/if}}
 
         {{#if queryParameters}}
             <h3>Query Parameters</h3>
             <ul>
-                {{#eachValue queryParameters}}
+                {{#each queryParameters}}
                     <li>
-                        <strong>{{@key}}</strong>
+                        <strong>{{key}}</strong>
                         <em>
                             {{#if this.required}}required{{/if}}
                             {{#if this.enum}}
@@ -141,20 +141,20 @@
                             </p>
                         {{/if}}
                     </li>
-                {{/eachValue}}
+                {{/each}}
             </ul>
         {{/if}}
 
         {{#if body}}
             <h3>Body</h3>
-            {{#eachValue body}}
-                <p><strong>Type: {{@key}}</strong></p>
+            {{#each body}}
+                <p><strong>Type: {{key}}</strong></p>
                 {{#if formParameters}}
                     <strong>Form Parameters</strong>
                     <ul>
-                        {{#eachValue formParameters}}
+                        {{#each formParameters}}
                             <li>
-                                <strong>{{@key}}</strong>:
+                                <strong>{{key}}</strong>:
                                 <em>
                                     {{#if this.required}}required{{/if}}
                                     {{#if this.enum}}
@@ -184,7 +184,7 @@
                                     </p>
                                 {{/if}}
                             </li>
-                        {{/eachValue}}
+                        {{/each}}
                     </ul>
                 {{/if}}
 
@@ -205,22 +205,22 @@
                         </small>
                     </p>
                 {{/if}}
-            {{/eachValue}}
+            {{/each}}
         {{/if}}
     </div>
 
     {{#if responses}}
-        <div class="tab-pane" id="{{../../uniqueId}}_{{this}}_response">
-            {{#eachValue responses}}
-                <h2>HTTP status code <a href="http://httpstatus.es/{{@key}}" target="_blank">{{@key}}</a></h2>
+        <div class="tab-pane" id="{{../../uniqueId}}_{{type}}_response">
+            {{#each responses}}
+                <h2>HTTP status code <a href="http://httpstatus.es/{{key}}" target="_blank">{{key}}</a></h2>
                 {{md this.description}}
 
                 {{#if this.headers}}
                     <h3>Headers</h3>
                     <ul>
-                        {{#eachValue this.headers}}
+                        {{#each this.headers}}
                             <li>
-                                <strong>{{@key}}</strong>:
+                                <strong>{{key}}</strong>:
                                 <em>
                                     {{#if this.required}}required{{/if}}
                                     ({{this.type}})
@@ -237,14 +237,14 @@
                                     </p>
                                 {{/if}}
                             </li>
-                        {{/eachValue}}
+                        {{/each}}
                     </ul>
                 {{/if}}
 
                 {{#if this.body}}
                     <h3>Body</h3>
-                    {{#eachValue this.body}}
-                        <p><strong>Type: {{@key}}</strong></p>
+                    {{#each this.body}}
+                        <p><strong>Type: {{key}}</strong></p>
 
                         {{#if this.schema}}
                             <p>
@@ -263,9 +263,9 @@
                                 </small>
                             </p>
                         {{/if}}
-                    {{/eachValue}}
+                    {{/each}}
                 {{/if}}
-            {{/eachValue}}
+            {{/each}}
         </div>
     {{/if}}
     </div>
@@ -273,9 +273,9 @@
     </div>
     </div>
     </div>
-{{/eachValue}}
+{{/each}}
 </div>
 
-{{#eachValue resources}}
+{{#each resources}}
     {{> resource}}
-{{/eachValue}}
+{{/each}}

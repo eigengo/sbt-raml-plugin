@@ -140,10 +140,10 @@
                 {{/documentation}}
             </div>
 
-            {{#eachValue resources}}
+            {{#each resources}}
                 <div class="panel panel-default">
                     <div class="panel-heading">
-                        <h3 id="{{uniqueId}}" class="panel-title">{{#if displayName}}{{displayName}}{{/if}}{{#unless displayName}}{{relativeUri}}{{/unless}}</h3>
+                        <h3 id="{{uniqueId key}}" class="panel-title">{{#if displayName}}{{displayName}}{{/if}}{{#unless displayName}}{{relativeUri}}{{/unless}}</h3>
                     </div>
 
                     <div class="panel-body">
@@ -156,15 +156,15 @@
                         <div class="panel-group">{{> resource}}</div>
                     </div>
                 </div>
-            {{/eachValue}}
+            {{/each}}
         </div>
 
         <div class="col-md-3">
             <div id="sidebar" class="hidden-print affix" role="complementary">
                 <ul class="nav nav-pills nav-stacked">
-                    {{#eachValue resources}}
-                        <li><a href="#{{uniqueId}}">{{#if displayName}}{{displayName}}{{/if}}{{#unless displayName}}{{relativeUri}}{{/unless}}</a></li>
-                    {{/eachValue}}
+                    {{#each resources}}
+                        <li><a href="#{{uniqueId key}}">{{#if displayName}}{{displayName}}{{/if}}{{#unless displayName}}{{relativeUri}}{{/unless}}</a></li>
+                    {{/each}}
                 </ul>
             </div>
         </div>
