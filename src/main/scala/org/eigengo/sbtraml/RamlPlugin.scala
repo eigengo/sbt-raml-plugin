@@ -41,8 +41,9 @@ trait RamlSettings {
 
     lazy val baseRamlSettings: Seq[Setting[_]] = Seq(
       verify := { new RamlVerify((source in Raml).value, streams.value).run() },
-      html := { new RamlDoc((source in Raml).value, (template in Raml).?.value , writeToFile(streams.value, (target in Compile).value), streams.value).run() },
-      source in Raml := baseDirectory.value / "src/raml"
+      html := { new RamlDoc((source in Raml).value, (template in Raml).?.value , writeToFile(streams.value, (target in Raml).value), streams.value).run() },
+      source in Raml := baseDirectory.value / "src/raml",
+      target in Raml := (target in Compile).value
     )
   }
 
