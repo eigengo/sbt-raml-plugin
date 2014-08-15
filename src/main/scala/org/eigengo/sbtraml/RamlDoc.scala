@@ -1,7 +1,6 @@
 package org.eigengo.sbtraml
 
 import com.github.jknack.handlebars.Handlebars
-import com.github.jknack.handlebars.helper.StringHelpers
 import com.github.jknack.handlebars.io.{StringTemplateSource, TemplateSource}
 import org.raml.parser.visitor.RamlDocumentBuilder
 import sbt.Keys._
@@ -62,12 +61,14 @@ object RamlDoc {
  * @param s the TaskStreams reference
  */
 class RamlDoc(resourceLocation: File, template: Option[File], write: RamlDoc.Write, s: TaskStreams) extends RamlSources {
+  import org.eigengo.sbtraml.helpers.{LockHelper, MarkdownHelper, UniqueIdHelper}
 
   private val handlebars = new Handlebars()
   handlebars.setInfiniteLoops(true)
   handlebars.setDeletePartialAfterMerge(true)
-  handlebars.registerHelper("md", StringHelpers.lower)
-  handlebars.registerHelper("lock", StringHelpers.lower)
+  handlebars.registerHelper("md", MarkdownHelper)
+  handlebars.registerHelper("lock", LockHelper)
+  handlebars.registerHelper("uniqueId", UniqueIdHelper)
 
   private val resourceLocationPath: String = resourceLocation.getAbsolutePath
   private val templateSource: TemplateSource = template.map { f => new StringTemplateSource(f.getName, Source.fromFile(f).mkString) }
