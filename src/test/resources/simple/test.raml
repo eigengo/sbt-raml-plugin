@@ -8,8 +8,26 @@ baseUri: http://eventlog.example.org/{version}
 /streams/{streamName}:
   displayName: A Named Stream
   description: A stream is a collection of related events. A Named Stream has been defined by the user to contain a list of related events. Named Streams are created by POSTing an event to a Named Stream.
+  uriParameters:
+    streamName:
+      displayName: The name of the stream
+      type: string
   get:
     description: Get a list of events in this stream.
+    responses:
+      200:
+        body:
+          application/json:
+            schema: |
+              { "$schema": "http://json-schema.org/schema",
+                "type": "object",
+                "description": "A canonical song",
+                "properties": {
+                  "title":  { "type": "string" },
+                  "artist": { "type": "string" }
+                },
+                "required": [ "title", "artist" ]
+              }
   post:
     description: Create a new event in this stream.
   /{eventId}:

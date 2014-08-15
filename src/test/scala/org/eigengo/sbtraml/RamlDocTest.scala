@@ -43,8 +43,8 @@ class RamlDocTest extends FeatureSpec {
 
     scenario("From single RAML file") {
       val f = new File(getClass.getResource("/simple/").toURI)
-      new RamlDoc(f, None, (_, x) => println(x), s()).run()
-//      new RamlDoc(f, None, writeToFile, s()).run()
+//      new RamlDoc(f, None, (_, x) => println(x), s()).run()
+      new RamlDoc(f, None, writeToFile, s()).run()
     }
 
     scenario("From multiple RAML files in sub-directories") {
