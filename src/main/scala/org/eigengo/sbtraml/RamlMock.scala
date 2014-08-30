@@ -1,71 +1,113 @@
 package org.eigengo.sbtraml
 
 import java.io.File
-import java.util.concurrent.TimeUnit
 
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{LightArrayRevolverScheduler, Actor, ActorSystem, Props}
 import akka.io.IO
-import com.typesafe.config.{ConfigFactory, Config}
+import com.typesafe.config.ConfigFactory
 import org.raml.model._
 import org.raml.model.parameter.UriParameter
 import org.raml.parser.visitor.RamlDocumentBuilder
+import sbt.Keys._
 import spray.can.Http
 import spray.http.Uri.Path
 import spray.http.Uri.Path.{Segment, Slash}
 import spray.http._
 
-import scala.concurrent.Future
-import scala.concurrent.duration.FiniteDuration
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.{Failure, Success, Try}
 
-class RamlMock(resourceLocation: File, settings: MockSettings) extends RamlSources {
+/**
+ * RAML Mock task starts a server that mocks
+ *
+ * @param resourceLocation the resource location of the RAML files
+ * @param settings the settings
+ * @param s the TaskStreams
+ */
+class RamlMock(resourceLocation: File, settings: MockSettings, s: TaskStreams) extends RamlSources {
   private val resourceLocationPath: String = resourceLocation.getAbsolutePath
   private val ramlDefinitions = findFiles(resourceLocation).map(ramlFile => new RamlDocumentBuilder().build(load(ramlFile), resourceLocationPath)).toList
 
   def start(): Unit = {
-    implicit val system = ActorSystem("raml-mock", ConfigFactory.parseString(
-      """
-        |akka.version=2.3.5
-        |akka.actor.guardian-supervisor-strategy = "akka.actor.DefaultSupervisorStrategy"
-        |akka.actor.creation-timeout=30s
-        |akka.actor.unstarted-push-timeout=30s
-        |akka.actor.serialize-messages=off
-        |akka.actor.serialize-creators=off
-        |loglevel = "INFO"
-        |akka.actor.provider = "akka.actor.LocalActorRefProvider"
-        |akka.log-dead-letters = off
-        |akka.log-dead-letters-during-shutdown = off
-      """.stripMargin))
+    // Weird SBT class loading error fixed by the following:
+    LightArrayRevolverScheduler.getClass
+    implicit val system = ActorSystem("raml-mock",
+      ConfigFactory.load(getClass.getClassLoader, "/raml-mocks.conf"), classLoader = getClass.getClassLoader)
     val mockServer = system.actorOf(Props(new MockServiceActor(ramlDefinitions, settings)))
     IO(Http) ! Http.Bind(mockServer, interface = settings.interface, port = settings.port)
+    s.log.info("Mock server running using " + settings)
+    s.log.info("Enter to quit")
+    Console.readLine()
+    system.shutdown()
   }
 
 }
 
 trait MockService {
 
+  /**
+   * Predicates wrap together matching functions
+   */
   object predicates {
+
+    /**
+     * Match result ADT
+     */
     sealed trait MatchResult {
+      /**
+       * An "and" operator
+       * @param that the other match result
+       * @return this "and" that
+       */
       def &&(that: MatchResult): MatchResult
+
+      /**
+       * An "and" operator
+       * @param that boolean that maps ``false`` to ``Unmatched`` and ``true`` to ``MatchedCompletely``
+       * @return this "and" that
+       */
       def &&(that: Boolean): MatchResult = if (that) this else Unmatched
     }
+
+    /** Complete match */
     case object MatchedCompletely extends MatchResult {
       def &&(that: MatchResult): MatchResult = that
     }
+    /** Partial / start match */
     case object MatchedStart extends MatchResult {
       def &&(that: MatchResult): MatchResult = that
     }
+    /** No match */
     case object Unmatched extends MatchResult {
       def &&(that: MatchResult): MatchResult = Unmatched
     }
 
+    /**
+     * Adds the ``cata`` function to ``Try[A]``
+     * @param t the ``Try[A]``
+     * @tparam A the A
+     */
     private implicit class RichTry[A](t: Try[A]) {
+      /** catamorphism */
       def cata[B](left: => B, right: A => B): B = t match {
         case Success(a) => right(a)
         case Failure(_) => left
       }
     }
 
+    /**
+     * Matches the path parameter (in ``segment``) against the given ``value``, with additional information
+     * in ``parameters``. For example, the matching will:
+     *
+     * - MatchedCompletely: {name} against "somesuch" with parameters [name -> String of any length, ...]
+     * - MatchedCompletely: {id}   against 445        with parameters [id -> Integer in any range, ...]
+     * - Unmatched:         {id}   against "one"      with parameters [id -> Integer in any range, ...]
+     *
+     * @param segment the segment to be matched, including the '{' and '}'
+     * @param value the segment value
+     * @param parameters parameters
+     * @return
+     */
     def pathParameterPredicate(segment: String, value: String, parameters: Map[String, UriParameter]): MatchResult = {
       import scala.collection.JavaConversions._
 
@@ -98,7 +140,13 @@ trait MockService {
       } yield typeMatch && enumMatch).getOrElse(MatchedCompletely)
     }
 
-    def uriPathPredicate(uri: Uri, r: Resource): MatchResult = {
+    /**
+     *
+     * @param uri
+     * @param r
+     * @return
+     */
+    def uriPathPredicate(uri: Uri, basePath: String, r: Resource): MatchResult = {
       import scala.collection.JavaConversions._
 
       def paths(segments: List[String], path: Path): MatchResult = (segments, path) match {
@@ -114,17 +162,13 @@ trait MockService {
           throw new RuntimeException("Not implemented URI predicate for " + s + " -> " + p)
       }
 
-      val segments = r.getUri.split("/").toList.flatMap { segment =>
-        if (segment == "") Seq()
-        else Seq("/", segment)
-      }
-
+      val segments = (basePath.split("/") ++ r.getUri.split("/")).filterNot(_.isEmpty).flatMap(Seq("/", _)).toList
       paths(segments, uri.path)
     }
 
   }
 
-  def mock(ramls: List[Raml], settings: MockSettings, request: HttpRequest)(implicit system: ActorSystem): Future[HttpResponse] = {
+  def mock(ramls: List[Raml], settings: MockSettings, request: HttpRequest)(implicit e: ExecutionContext): Future[HttpResponse] = {
     import predicates._
     import scala.collection.JavaConversions._
 
@@ -139,11 +183,12 @@ trait MockService {
       case HttpMethods.TRACE => ActionType.TRACE
     }
 
-    def findResource(resource: Resource): Option[Resource] = {
-      uriPathPredicate(request.uri, resource) match {
+    def findResource(basePath: String)(resource: Resource): Option[Resource] = {
+      uriPathPredicate(request.uri, basePath, resource) match {
         case Unmatched => None
         case MatchedCompletely => Some(resource)
-        case MatchedStart => resource.getResources.values().find(uriPathPredicate(request.uri, _) == MatchedCompletely)
+        case MatchedStart =>
+          resource.getResources.values().find(uriPathPredicate(request.uri, basePath, _) == MatchedCompletely).orElse(Some(resource))
       }
     }
 
@@ -167,7 +212,7 @@ trait MockService {
 
     val responses = ramls.flatMap { raml =>
       for {
-        resource <- raml.getResources.values().flatMap(findResource).headOption
+        resource <- raml.getResources.values().flatMap(findResource(raml.getBasePath)).headOption
         action   <- Option(resource.getAction(request.method.toString()))
         response <- findResponse(action, responseCode)
       } yield mkHttpResponse(response)
@@ -179,16 +224,16 @@ trait MockService {
       case r::rs => HttpResponse(StatusCodes.MultipleChoices)
     }
 
-    import akka.pattern.after
-    import system.dispatcher
-    after(FiniteDuration(timeout, TimeUnit.MILLISECONDS), system.scheduler)(Future(response))
+    Future {
+      Thread.sleep(timeout)
+      response
+    }
   }
 
 }
 
 class MockServiceActor(definitions: List[Raml], settings: MockSettings) extends Actor with MockService {
   import akka.pattern.pipe
-  import context.system
   import context.dispatcher
 
   def receive: Receive = {

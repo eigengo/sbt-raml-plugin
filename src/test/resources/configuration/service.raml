@@ -1,0 +1,60 @@
+#%RAML 0.8
+title: User Service API
+baseUri: http://{user.server.ip}:{user.server.port}/configuration/
+mediaType:  application/json
+version: v1
+resourceTypes:
+  - configuration:
+      get:
+        headers:
+          Authorization:
+            displayName: The OAuth access token
+            type: string
+            required: true
+            example: Bearer 0b79bab50daca910b000d4f1a2b675d604257e42
+          Accept:
+            displayName: The format the configuration should be returned in
+            type: string
+            required: true
+            example: application/hocon, application/x-text-properties, text/html
+          Locale:
+            displayName: The locale for the configuration
+            type: string
+            required: true
+            example: en_US, fr_FR
+        description: Get an existing <<resourcePathName>>.
+        responses:
+          200:
+            body:
+              application/json:
+                schema: <<getjsonschema>>
+                example: |
+                  {
+                    "cassandra":{"host":"1.2.3.4", "keyspace":"chassis"},
+                    "port":4042
+                  }
+              application/x-text-properties:
+                example: |
+                  cassandra.host = 1.2.3.4
+                  cassandra.keyspace = chassis
+                  port = 4042
+          404:
+            description: The requested configuration was not found
+
+
+/{name}:
+  description: Loads the configuration identified by its {name} in the requested language
+  type:
+    configuration:
+      getjsonschema: |
+        {
+          $schema": "http://json-schema.org/draft-04/schema#",
+          "title": "Configuration",
+          "description": "Configuration",
+          "type": "object",
+          "properties": {
+            "property1":  { "type": "any" },
+            "property2":  { "type": "any" },
+          },
+          "required": []
+        }

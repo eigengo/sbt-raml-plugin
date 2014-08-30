@@ -57,7 +57,7 @@ trait RamlSettings {
     lazy val baseRamlSettings: Seq[Setting[_]] = Seq(
       verify := { new RamlVerify((source in Raml).value, streams.value).run() },
       html := { new RamlDoc((source in Raml).value, (template in Raml).?.value , writeToFile(streams.value, (target in Raml).value), streams.value).run() },
-      mock := { new RamlMock((source in Raml).value, (mockSettings in Raml).value).start() },
+      mock := { new RamlMock((source in Raml).value, (mockSettings in Raml).value, streams.value).start() },
       source in Raml := baseDirectory.value / "src/raml",
       mockSettings in Raml := MockSettings(),
       target in Raml := (target in Compile).value
