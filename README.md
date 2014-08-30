@@ -27,6 +27,21 @@ org.eigengo.sbtraml.RamlPlugin.settings
 to your ``build.sbt``. This will add the RAML verify check to the ``compile`` task and documentation task to the
 ``publishLocal`` task.
 
+You can also execute the ``raml:mock`` task, which will expose your APIs in your project on the interface, port in 
+``MockSettings``. In the mock server, you can specify the HTTP header that you can pass to the mock server to 
+indicate which response (out of the many possible ones) you'd like the server to return; the timeout you'd like
+the server to take, and an indicator for errors.
+
+```scala
+settings in Raml := MockSettings(interface = "localhost", port = 8100,
+                                 responseCodeHeaderName = "X-Code",
+                                 responseTimeHeaderName = "X-Time",
+                                 failResponseHeaderName = "X-Fail")
+```
+
+Then set these HTTP headers on the request to indicate which response code to send, whether to fail (return 503),
+and how long to take before returning a response.
+
 ---
 
 Notes:

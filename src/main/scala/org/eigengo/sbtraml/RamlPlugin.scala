@@ -15,9 +15,10 @@ import sbt._
  * @param responseTimeHeaderName the time (in milliseconds) the mock will take to respod                              
  * @param failResponseHeaderName the name of the HTTP header that—if present—will force the mock server to generate failure
  */
-case class MockSettings(interface: String = "0.0.0.0", port: Int = 9001, responseCodeHeaderName: String = "X-Mock-Response-Code",
-                      responseTimeHeaderName: String = "X-Mock-Response-Time",
-                      failResponseHeaderName: String = "X-Mock-Fail")
+case class MockSettings(interface: String = "0.0.0.0", port: Int = 9001,
+                        responseCodeHeaderName: String = "X-Mock-Response-Code",
+                        responseTimeHeaderName: String = "X-Mock-Response-Time",
+                        failResponseHeaderName: String = "X-Mock-Fail")
 
 /**
  * Defines settings for the RAML plugin.
