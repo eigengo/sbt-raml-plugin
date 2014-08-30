@@ -12,6 +12,18 @@ baseUri: http://eventlog.example.org/{version}
     streamName:
       displayName: The name of the stream
       type: string
+      maxLength: 10
+  put:
+    description: Updates the stream
+    responses:
+      200:
+        body:
+          applicaiton/json:
+            example: |
+              {
+                "title": "PUT",
+                "artist": "Putman"
+              }
   get:
     description: Get a list of events in this stream.
     responses:
@@ -28,8 +40,8 @@ baseUri: http://eventlog.example.org/{version}
                 },
                 "required": [ "title", "artist" ]
               }
-  post:
-    description: Create a new event in this stream.
-  /{eventId}:
-   get:
-     description: Get a particular event by its Id.
+            example: |
+              {
+                "title": "Music to my ears",
+                "artist": "Some such"
+              }

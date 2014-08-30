@@ -8,15 +8,16 @@ import sbt._
 
 /**
  * Settings for the Mock server
- * 
- * @param tcpPort the TCP port to bind to
+ *
+ * @param interface the network interface to listen on
+ * @param port the TCP port to bind to
  * @param responseCodeHeaderName the name of the HTTP header to indicate the error code
  * @param responseTimeHeaderName the time (in milliseconds) the mock will take to respod                              
- * @param failResponseCodeHeaderName the name of the HTTP header that—if present—will force the mock server to generate failure
+ * @param failResponseHeaderName the name of the HTTP header that—if present—will force the mock server to generate failure
  */
-case class MockSettings(tcpPort: Int = 9001, responseCodeHeaderName: String = "X-Mock-Response-Code",
+case class MockSettings(interface: String = "0.0.0.0", port: Int = 9001, responseCodeHeaderName: String = "X-Mock-Response-Code",
                       responseTimeHeaderName: String = "X-Mock-Response-Time",
-                      failResponseCodeHeaderName: String = "X-Mock-Fail")
+                      failResponseHeaderName: String = "X-Mock-Fail")
 
 /**
  * Defines settings for the RAML plugin.
